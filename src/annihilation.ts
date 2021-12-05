@@ -2,9 +2,8 @@ import html2canvas from 'html2canvas';
 // import './annihilation.scss';
 
 export enum Variables {
-    variables,
-    // attribues,
-    styles
+    variables = 'variables',
+    styles = 'styles'
 }
 
 interface GravityPoint {
@@ -45,7 +44,7 @@ export function annihilation(config: AnnihilationConfig): Promise<string> {
         let position: string;
 
         if (element && config.columns && config.rows) {
-            html2canvas(element, { logging: false })
+            html2canvas(element, { backgroundColor: 'inherit' })
                 .then(function (canvas: HTMLCanvasElement) {
                     //todo: good way to cleane. It is temp...
                     if (typeof getComputedStyle !== 'undefined') {
@@ -58,21 +57,10 @@ export function annihilation(config: AnnihilationConfig): Promise<string> {
                     parent.classList.add('annihilation__content');
                     parent.style.backgroundImage = `url(${canvas.toDataURL()})`;
 
-                    switch (config.variables) {
-                        case Variables.styles:
-                            // parent.style.backgroundImage = `url(${canvas.toDataURL()})`;
-                            break;
-
-                        // case Variables.attribues:
-                        //     parent.classList.add('annihilation-attribues');
-                        //     break;
-
-                        case Variables.variables:
-                        default:
-                            parent.classList.add('annihilation-variables');
-                            parent.style.setProperty('--columns', config.columns.toString());
-                            parent.style.setProperty('--rows', config.rows.toString());
-                            break;
+                    if (!config.variables || config.variables === Variables.variables) {
+                        parent.classList.add('annihilation-variables');
+                        parent.style.setProperty('--columns', config.columns.toString());
+                        parent.style.setProperty('--rows', config.rows.toString());
                     }
 
                     for (let row: number = 0; row < config.rows; row++) {
@@ -85,13 +73,6 @@ export function annihilation(config: AnnihilationConfig): Promise<string> {
                                     box.style.height = `calc(100% / ${config.rows})`;
                                     box.style.backgroundPosition = `calc(-100% * ${column}) calc(-100% * ${row})`;
                                     break;
-
-                                // case Variables.attribues:
-                                //     box.setAttribute('columns', config.columns.toString());
-                                //     box.setAttribute('rows', config.rows.toString());
-                                //     box.setAttribute('column', column.toString());
-                                //     box.setAttribute('row', row.toString());
-                                //     break;
 
                                 case Variables.variables:
                                 default:

@@ -31,13 +31,5 @@
         background-position: calc(-100% * var(--column)) calc(-100% * var(--row));
       }
     }
-
-    &.annihilation-attribues {
-      & > * {
-        width: calc(100% / 10);
-        height: calc(100% / attr(rows number));
-        background-position: calc(-100% * attr(column number)) calc(-100% * attr(row number));
-      }
-    }
   }
 }
