@@ -5,24 +5,21 @@
     visibility: hidden;
   }
 
-  .annihilation__content {
-    // --rendered: none;
-    // --columns: 1;
-    // --rows: 1;
-    
+  .annihilation__content {   
     position: absolute;
     width: 100%;
     height: 100%;
     left: 0;
     top: 0;
-    // top: 100%;
     display: flex;
     flex-wrap: wrap;
-    // background-image: var(--rendered);
-    // background-size: 0;
+    background-size: 0;
+
+    & > * {
+      background-image: inherit;
+    }
 
     &.annihilation-variables {
-      --rendered: none;
       --columns: 1;
       --rows: 1;
       --column: 0;
@@ -31,58 +28,16 @@
       & > * {
         width: calc(100% / var(--columns));
         height: calc(100% / var(--rows));
-        background-image: var(--rendered);
         background-position: calc(-100% * var(--column)) calc(-100% * var(--row));
       }
     }
 
-    &:not(.annihilation-variables) {
-      background-image: var(--rendered);
-      background-size: 0;
-
+    &.annihilation-attribues {
       & > * {
-        background-image: inherit;
+        width: calc(100% / 10);
+        height: calc(100% / attr(rows number));
+        background-position: calc(-100% * attr(column number)) calc(-100% * attr(row number));
       }
     }
-
-    // & > * {
-    //   // --column: 0;
-    //   // --row: 0;
-
-    //   // border: 1px solid red;
-    //   width: calc(100% / var(--columns));
-    //   height: calc(100% / var(--rows));
-    //   // background-image: var(--rendered);
-    //   background-image: inherit;
-    //   background-position: calc(-100% * var(--column)) calc(-100% * var(--row));
-    // }
   }
 }
-
-// .test {
-//   background: red;
-//   width: 400px;
-//   height: 400px;
-//   display: flex;
-//   flex-wrap: wrap;
-
-//   & > * {
-//     /* display: inline-block; */
-//     /* margin: 0; */
-//     /* padding: 0px; */
-//     width: calc(100% / 3);
-//     height: calc(100% / 3);
-//     background: green;
-//     position: relative;
-
-//     &:after {
-//       content: "";
-//       position: absolute;
-//       left: 1px;
-//       top: 1px;
-//       width: calc(100% - 2px);
-//       height: calc(100% - 2px);
-//       background: blue;
-//     }
-//   }
-// }

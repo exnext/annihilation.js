@@ -1,9 +1,9 @@
 import html2canvas from 'html2canvas';
 // import './annihilation.scss';
 
-enum Variables {
+export enum Variables {
     variables,
-    attribues,
+    // attribues,
     styles
 }
 
@@ -56,28 +56,48 @@ export function annihilation(config: AnnihilationConfig): Promise<string> {
 
                     let parent: HTMLElement = document.createElement('div');
                     parent.classList.add('annihilation__content');
+                    parent.style.backgroundImage = `url(${canvas.toDataURL()})`;
 
-                    if (config.inline) {
-                        parent.style.backgroundImage = `url(${canvas.toDataURL()})`;
-                    } else {
-                        parent.classList.add('annihilation-variables');
+                    switch (config.variables) {
+                        case Variables.styles:
+                            // parent.style.backgroundImage = `url(${canvas.toDataURL()})`;
+                            break;
 
-                        parent.style.setProperty('--rendered', `url(${canvas.toDataURL()})`);
-                        parent.style.setProperty('--columns', config.columns.toString());
-                        parent.style.setProperty('--rows', config.rows.toString());
+                        // case Variables.attribues:
+                        //     parent.classList.add('annihilation-attribues');
+                        //     break;
+
+                        case Variables.variables:
+                        default:
+                            parent.classList.add('annihilation-variables');
+                            parent.style.setProperty('--columns', config.columns.toString());
+                            parent.style.setProperty('--rows', config.rows.toString());
+                            break;
                     }
 
                     for (let row: number = 0; row < config.rows; row++) {
                         for (let column: number = 0; column < config.columns; column++) {
                             let box: HTMLElement = document.createElement('div');
 
-                            if (config.inline) {
-                                box.style.width = `calc(100% / ${config.columns})`;
-                                box.style.height = `calc(100% / ${config.rows})`;
-                                box.style.backgroundPosition = `calc(-100% * ${column}) calc(-100% * ${row})`;
-                            } else {
-                                box.style.setProperty('--column', column.toString());
-                                box.style.setProperty('--row', row.toString());
+                            switch (config.variables) {
+                                case Variables.styles:
+                                    box.style.width = `calc(100% / ${config.columns})`;
+                                    box.style.height = `calc(100% / ${config.rows})`;
+                                    box.style.backgroundPosition = `calc(-100% * ${column}) calc(-100% * ${row})`;
+                                    break;
+
+                                // case Variables.attribues:
+                                //     box.setAttribute('columns', config.columns.toString());
+                                //     box.setAttribute('rows', config.rows.toString());
+                                //     box.setAttribute('column', column.toString());
+                                //     box.setAttribute('row', row.toString());
+                                //     break;
+
+                                case Variables.variables:
+                                default:
+                                    box.style.setProperty('--column', column.toString());
+                                    box.style.setProperty('--row', row.toString());
+                                    break;
                             }
 
                             parent.appendChild(box);
