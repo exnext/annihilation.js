@@ -5,7 +5,10 @@
     visibility: hidden;
   }
 
-  .annihilation__content {   
+  .annihilation__content {
+    --columns: 1;
+    --rows: 1;
+
     position: absolute;
     width: 100%;
     height: 100%;
@@ -16,20 +19,13 @@
     background-size: 0;
 
     & > * {
-      background-image: inherit;
-    }
-
-    &.annihilation-variables {
-      --columns: 1;
-      --rows: 1;
       --column: 0;
       --row: 0;
 
-      & > * {
-        width: calc(100% / var(--columns));
-        height: calc(100% / var(--rows));
-        background-position: calc(-100% * var(--column)) calc(-100% * var(--row));
-      }
+      background-image: inherit;
+      width: calc(100% / var(--columns));
+      height: calc(100% / var(--rows));
+      background-position: calc(-100% * var(--column)) calc(-100% * var(--row));
     }
   }
 }

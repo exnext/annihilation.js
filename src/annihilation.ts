@@ -1,10 +1,7 @@
 import html2canvas from 'html2canvas';
 // import './annihilation.scss';
 
-export enum Variables {
-    variables = 'variables',
-    styles = 'styles'
-}
+type OnCreatesPartial = (element: HTMLElement) => void;
 
 interface GravityPoint {
     x: number;
@@ -28,11 +25,11 @@ interface AnnihilationConfig {
     columns: number,
     rows: number,
     gravityCenter?: GravityPoint,
-    animationCssClass?: string | Locus<string>,
+    animationCssClass?: string,// | Locus<string>,
     time?: number | Locus<number>,
     offset?: number | Locus<number>
     inline?: boolean,
-    variables?: Variables
+    onCreatesPartial?: OnCreatesPartial
 }
 
 export function annihilation(config: AnnihilationConfig): Promise<string> {
@@ -57,28 +54,25 @@ export function annihilation(config: AnnihilationConfig): Promise<string> {
                     parent.classList.add('annihilation__content');
                     parent.style.backgroundImage = `url(${canvas.toDataURL()})`;
 
-                    if (!config.variables || config.variables === Variables.variables) {
-                        parent.classList.add('annihilation-variables');
-                        parent.style.setProperty('--columns', config.columns.toString());
-                        parent.style.setProperty('--rows', config.rows.toString());
-                    }
+                    parent.style.setProperty('--columns', config.columns.toString());
+                    parent.style.setProperty('--rows', config.rows.toString());
 
                     for (let row: number = 0; row < config.rows; row++) {
                         for (let column: number = 0; column < config.columns; column++) {
                             let box: HTMLElement = document.createElement('div');
+                            box.style.setProperty('--column', column.toString());
+                            box.style.setProperty('--row', row.toString());
 
-                            switch (config.variables) {
-                                case Variables.styles:
-                                    box.style.width = `calc(100% / ${config.columns})`;
-                                    box.style.height = `calc(100% / ${config.rows})`;
-                                    box.style.backgroundPosition = `calc(-100% * ${column}) calc(-100% * ${row})`;
-                                    break;
+                            if (config.animationCssClass) {
+                                config.animationCssClass.split(' ')
+                                .forEach(function name(params:string) {
+                                    box.classList.add(params);
+                                })
+                                // box.classList.add(config.animationCssClass);
+                            }
 
-                                case Variables.variables:
-                                default:
-                                    box.style.setProperty('--column', column.toString());
-                                    box.style.setProperty('--row', row.toString());
-                                    break;
+                            if (config.onCreatesPartial) {
+                                config.onCreatesPartial(box);
                             }
 
                             parent.appendChild(box);
