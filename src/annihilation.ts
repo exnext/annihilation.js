@@ -1,8 +1,6 @@
 import html2canvas from 'html2canvas';
 // import './annihilation.scss';
 
-type OnCreatesPartial = (element: HTMLElement) => void;
-
 interface GravityPoint {
     x: number;
     y: number;
@@ -32,6 +30,14 @@ interface AnnihilationConfig {
     onCreatesPartial?: OnCreatesPartial
 }
 
+export interface PartialParams {
+    row: number,
+    column: number,
+    gravityCenter?: GravityPoint
+}
+
+type OnCreatesPartial = (element: HTMLElement, params: PartialParams) => void;
+
 export function annihilation(config: AnnihilationConfig): Promise<string> {
     return new Promise(function (resolve, reject) {
         const element: HTMLElement = typeof config.element === 'string' ?
@@ -57,6 +63,8 @@ export function annihilation(config: AnnihilationConfig): Promise<string> {
                     parent.style.setProperty('--columns', config.columns.toString());
                     parent.style.setProperty('--rows', config.rows.toString());
 
+                    let boxes: number = config.rows * config.columns;
+
                     for (let row: number = 0; row < config.rows; row++) {
                         for (let column: number = 0; column < config.columns; column++) {
                             let box: HTMLElement = document.createElement('div');
@@ -65,15 +73,26 @@ export function annihilation(config: AnnihilationConfig): Promise<string> {
 
                             if (config.animationCssClass) {
                                 config.animationCssClass.split(' ')
-                                .forEach(function name(params:string) {
-                                    box.classList.add(params);
-                                })
+                                    .forEach(function name(params: string) {
+                                        box.classList.add(params);
+                                    })
                                 // box.classList.add(config.animationCssClass);
                             }
 
                             if (config.onCreatesPartial) {
-                                config.onCreatesPartial(box);
+                                config.onCreatesPartial(box, {
+                                    row,
+                                    column,
+                                    gravityCenter: config.gravityCenter
+                                });
                             }
+
+                            box.addEventListener('animationend', () => {
+                                boxes--;
+                                if (!boxes) {
+                                    resolve(canvas.toDataURL());
+                                }
+                            });
 
                             parent.appendChild(box);
                         }
@@ -86,7 +105,7 @@ export function annihilation(config: AnnihilationConfig): Promise<string> {
                     //     element.style.position = position;
                     // }
 
-                    resolve(canvas.toDataURL());
+                    // resolve(canvas.toDataURL());
                 });
         } else {
             reject('Element not found');
