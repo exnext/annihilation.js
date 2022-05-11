@@ -1,5 +1,5 @@
+import './annihilation.scss';
 import html2canvas from 'html2canvas';
-// import './annihilation.scss';
 
 interface GravityPoint {
     x: number;
