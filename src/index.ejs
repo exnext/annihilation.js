@@ -3,58 +3,353 @@
 
 <head>
   <meta charset="utf-8">
-  <title><%= name %> ver.<%= version %></title>
+  <title>
+    <%= name %> ver.<%= version %>
+  </title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="./favicon.ico">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css">
+  <script src="//cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+  <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+  <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+
   <style>
     body {
-      margin: 0;
-      padding: 0;
       background-color: black;
       color: white;
       font-family: sans-serif;
     }
 
-    #demo {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      cursor: pointer;
-      width: max-content;
+    section {
+      position: relative;
+      margin: 20px;
+      padding: 20px;
+      background-color: #fff4;
+      border-radius: 10px;
     }
 
-    #demo:hover {
-      outline: 2px solid red;
+    section a {
+      color: inherit;
+      font-weight: bold;
+    }
+
+    section.demo>div {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    section.demo>div>* {
+      flex: 1;
+      margin: 10px;
+    }
+
+    section.demo>div>*:last-child {
+      display: flex;
+      justify-content: center;
+    }
+
+    .result {
+      width: 100%;
+    }
+  </style>
+
+  <style media="all and (max-width: 1000px)">
+    section>div {
+      flex-direction: column;
+    }
+  </style>
+
+  <style name="img-demo">
+    .img-demo .result>*:first-child {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .img-demo .result>*:first-child::after {
+      content: 'Click me!';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      color: red;
+      font-size: 2rem;
+      animation: blink 1s linear infinite;
+    }
+
+    .img-demo .result>*:first-child:hover::after {
+      content: none;
+    }
+
+    @keyframes blink {
+      50% {
+        opacity: 0;
+      }
+    }
+
+    .img-demo .result>*:first-child img {
+      width: 100%;
     }
   </style>
 </head>
 
 <body>
-  <div id="demo">
-    <img src="assets/peter.jpg" />
-  </div>
+  <template id="section-content">
+    <div>
+      <pre><code class="language-html source"></code></pre>
+      <div>
+        <div class="result"></div>
+      </div>
+    </div>
+  </template>
+
+  <h1>Introduction</h1>
+
+  <section id="common-styles">
+    <h3>Documentation</h3>
+    <div>Look at <a href="https://www.npmjs.com/package/@exnext/annihilation.js">npm</a> or <a
+        href="https://github.com/exnext/annihilation.js">github</a></div>
+
+    <h3>NPM</h3>
+    <pre><code class="language-bash">npm install @exnext/annihilation.js</code></pre>
+  </section>
+
+  <section class="demo img-demo">
+    <h3>Example 1</h3>
+
+    <template>
+      <div id="img_demo_1">
+        <img src="assets/peter.jpg" />
+      </div>
+
+      <script>
+        document.getElementById('img_demo_1')
+          .addEventListener('click', function (event) {
+            annihilation({
+              element: '#img_demo_1'
+            }).then((result) => {
+              result.element.remove();
+            });
+          });
+      </script>
+    </template>
+  </section>
+
+  <section class="demo img-demo">
+    <h3>Example 2</h3>
+
+    <template>
+      <div id="img_demo_2">
+        <img src="assets/peter.jpg" />
+      </div>
+
+      <script>
+        document.getElementById('img_demo_2')
+          .addEventListener('click', function (event) {
+            let rect = event.target.getBoundingClientRect(),
+              columns = 15,
+              rows = Math.round(columns * rect.height / rect.width),
+              colClick = Math.floor(columns * (event.clientX - rect.left) / rect.width),
+              rowClick = Math.floor(rows * (event.clientY - rect.top) / rect.height);
+
+            annihilation({
+              element: event.currentTarget,
+              columns,
+              rows,
+              animationCssClass: 'animate__animated animate__zoomOut',
+              onCreatesPartial: (element, params) => {
+                let multiplier = Math.abs(params.row - rowClick) + Math.abs(params.column - colClick);
+                element.style.animationDelay = 0.05 * multiplier + 's';
+              }
+            }).then((result) => {
+              result.element.remove();
+            });
+          });
+      </script>
+    </template>
+  </section>
+
+  <section class="demo img-demo">
+    <h3>Example 3</h3>
+
+    <template>
+      <div id="img_demo_3">
+        <img src="assets/peter.jpg" />
+      </div>
+
+      <script>
+        document.getElementById('img_demo_3')
+          .addEventListener('click', function (event) {
+            let rect = event.target.getBoundingClientRect(),
+              columns = 15,
+              rows = Math.round(columns * rect.height / rect.width),
+              colClick = Math.floor(columns * (event.clientX - rect.left) / rect.width),
+              rowClick = Math.floor(rows * (event.clientY - rect.top) / rect.height);
+
+            annihilation({
+              element: event.currentTarget,
+              columns,
+              rows,
+              animationCssClass: 'animate__animated',
+              onCreatesPartial: (element, params) => {
+                let multiplier = Math.abs(params.row - rowClick) + Math.abs(params.column - colClick);
+                element.style.animationDelay = 0.05 * multiplier + 's';
+                if (colClick > params.column) {
+                  element.classList.add('animate__fadeOutLeft');
+                } else {
+                  element.classList.add('animate__fadeOutRight');
+                }
+              }
+            }).then((result) => {
+              result.element.remove();
+            });
+          });
+      </script>
+    </template>
+  </section>
+
+  <section class="demo img-demo">
+    <style>
+      /* #carousel_demo_1.annihilation > * {
+        position: absolute;
+      } */
+    </style>
+
+    <h3>Example 4</h3>
+
+    <template>
+      <div id="carousel_demo_1">
+        <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-inner">
+            <div class="carousel-item active">
+              <img src="assets/peter.jpg" />
+            </div>
+            <div class="carousel-item">
+              <img src="assets/peter.jpg" />
+            </div>
+            <div class="carousel-item">
+              <img src="assets/peter.jpg" />
+            </div>
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls"
+            data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls"
+            data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          </button>
+        </div>
+      </div>
+
+      <script>
+        document.querySelector('#carousel_demo_1 .carousel-control-prev')
+          .addEventListener('click', function (event) {
+            annihilation({
+              element: '#carousel_demo_1',
+              animationCssClass: 'animate__animated animate__fadeOutRight',
+              onCreatesPartial: (element, params) => {
+                element.style.animationDelay = 0.1 * Math.random() + 's';
+              }
+            }).then((result) => {
+              result.element.classList.remove('annihilation');
+            });
+          });
+
+        document.querySelector('#carousel_demo_1 .carousel-control-next')
+          .addEventListener('click', function (event) {
+            annihilation({
+              element: '#carousel_demo_1',
+              animationCssClass: 'animate__animated animate__fadeOutLeft',
+              onCreatesPartial: (element, params) => {
+                element.style.animationDelay = 0.1 * Math.random() + 's';
+              }
+            }).then((result) => {
+              result.element.classList.remove('annihilation');
+            });
+          });
+      </script>
+    </template>
+  </section>
+
+  <section class="demo">
+    <h3>Example 5</h3>
+
+    <template>
+      <style>
+        #form_demo_1 {
+          background: #0004;
+          padding: 20px;
+          border-radius: 10px;
+        }
+      </style>
+
+      <div id="form_demo_1">
+        <form>
+          <div class="mb-3">
+            <label for="login" class="form-label">Login</label>
+            <input type="text" class="form-control" id="login" value="any login">
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" value="any password">
+          </div>
+          <div class="mb-3">
+            <button type="button" class="btn btn-primary mb-3" id="form_demo_1_button">Click me!</button>
+          </div>
+        </form>
+      </div>
+
+      <script>
+        document.getElementById('form_demo_1_button')
+          .addEventListener('click', function (event) {
+            let rect = document.getElementById('form_demo_1').getBoundingClientRect(),
+              columns = 10,
+              rows = Math.round(columns * rect.height / rect.width),
+              colClick = Math.floor(columns * (event.clientX - rect.left) / rect.width),
+              rowClick = Math.floor(rows * (event.clientY - rect.top) / rect.height);
+
+            annihilation({
+              element: '#form_demo_1',
+              columns,
+              rows,
+              animationCssClass: 'animate__animated animate__zoomOut',
+              onCreatesPartial: (element, params) => {
+                let multiplier = Math.abs(params.row - rowClick) + Math.abs(params.column - colClick);
+                element.style.animationDelay = 0.05 * multiplier + 's';
+              }
+            }).then((result) => {
+              result.element.remove();
+            });
+          });
+      </script>
+    </template>
+  </section>
 
   <script>
+    const sectionContent = document.querySelector('template#section-content');
+    const sections = document.querySelectorAll('section.demo');
 
-    let demo = document.getElementById('demo');
+    for (let section of sections) {
+      let template = section.querySelector('template');
 
-    demo.addEventListener('click', function (event) {
-      annihilation({
-        element: demo,
-        columns: 10,
-        rows: 10,
-        animationCssClass: 'animate__animated animate__zoomOut',
-        onCreatesPartial: (element, params) => {
-          element.style.animationDelay = 0.5 * Math.random() + 's';
-        }
-      }).then((params) => {
-        console.log(params);
-      });
-    });
+      if (template) {
+        section.appendChild(sectionContent.content.cloneNode(true));
 
+        let source = section.querySelector('.source');
+        source.textContent = template.innerHTML;
+
+        let result = section.querySelector('.result');
+        result.appendChild(document.importNode(template.content.cloneNode(true), true));
+      }
+    }
+
+    hljs.highlightAll();
   </script>
 </body>
 

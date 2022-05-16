@@ -1,10 +1,8 @@
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const RemoveEmptyScriptsPlugin = require('webpack-remove-empty-scripts');
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebPackPlugin = require('html-webpack-plugin');
 const TerserWebpackPlugin = require('terser-webpack-plugin');
-const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const path = require('path');
 
 const package = require('./package.json');
@@ -23,8 +21,7 @@ module.exports = {
         minimizer: [
             new TerserWebpackPlugin({
                 extractComments: false
-            }),
-            new CssMinimizerPlugin()
+            })
         ]
     },
     module: {
@@ -60,12 +57,6 @@ module.exports = {
                     {
                         loader: 'style-loader'
                     },
-                    {
-                        loader: MiniCssExtractPlugin.loader,
-                        options: {
-                            esModule: false
-                        }
-                    },
 					{
 						loader: 'css-loader',
 					},
@@ -99,10 +90,6 @@ module.exports = {
                 name: package.name,
                 version: package.version
             }
-        }),
-        new MiniCssExtractPlugin({
-            filename: "[name].css",
-            chunkFilename: "[id].css",
         }),
         new CopyWebpackPlugin({
             patterns: [

@@ -1,96 +1,101 @@
 import './annihilation.scss';
 import html2canvas from 'html2canvas';
 
-interface GravityPoint {
-    x: number;
-    y: number;
+export interface AnnihilationConfig {
+    element: string | HTMLElement;
+    columns?: number;
+    rows?: number;
+    animationCssClass?: string;
+    onCreatesPartial?: OnCreatesPartial;
 }
 
-interface Locus<T> {
-    leftTop: T;
-    top: T;
-    rightTop: T;
-    left: T;
-    center: T;
-    right: T;
-    leftBottom: T;
-    bottom: T;
-    rightBottom: T;
-}
-
-interface AnnihilationConfig {
-    element: string | HTMLElement,
-    columns: number,
-    rows: number,
-    gravityCenter?: GravityPoint,
-    animationCssClass?: string,// | Locus<string>,
-    time?: number | Locus<number>,
-    offset?: number | Locus<number>
-    inline?: boolean,
-    onCreatesPartial?: OnCreatesPartial
+export interface AnnihilationPromise {
+    element: HTMLElement;
+    dataURL: string;
 }
 
 export interface PartialParams {
-    row: number,
-    column: number,
-    gravityCenter?: GravityPoint
+    columns: number;
+    rows: number;
+    column: number;
+    row: number;
 }
 
-type OnCreatesPartial = (element: HTMLElement, params: PartialParams) => void;
+export type OnCreatesPartial = (element: HTMLElement, params: PartialParams) => void;
 
-export function annihilation(config: AnnihilationConfig): Promise<string> {
+export function annihilation(config: AnnihilationConfig): Promise<AnnihilationPromise> {
     return new Promise(function (resolve, reject) {
         const element: HTMLElement = typeof config.element === 'string' ?
             <HTMLElement>document.querySelector(config.element) :
             config.element;
 
-        let position: string;
+        if (element) {
+            let rect = element.getBoundingClientRect();
 
-        if (element && config.columns && config.rows) {
+            let columns: number = config.columns || 0,
+                rows: number = config.rows || 0;
+
+            columns = columns || Math.round(rows * rect.width / rect.height) || 10;
+            rows = rows || Math.round(columns * rect.height / rect.width) || 10;
+
             html2canvas(element, { backgroundColor: 'inherit' })
                 .then(function (canvas: HTMLCanvasElement) {
-                    //todo: good way to cleane. It is temp...
-                    if (typeof getComputedStyle !== 'undefined') {
-                        position = getComputedStyle(element, null)['position'];
-                    }
-
                     element.classList.add('annihilation');
 
                     let parent: HTMLElement = document.createElement('div');
                     parent.classList.add('annihilation__content');
+
                     parent.style.backgroundImage = `url(${canvas.toDataURL()})`;
+                    parent.style.setProperty('--columns', columns.toString());
+                    parent.style.setProperty('--rows', rows.toString());
 
-                    parent.style.setProperty('--columns', config.columns.toString());
-                    parent.style.setProperty('--rows', config.rows.toString());
+                    let existsPosition: boolean = !!element.style.position;
+                    let position: string = getComputedStyle(element).position;
+                    if (['absolute', 'relative'].indexOf(position) == -1) {
+                        element.style.position = 'relative';
+                    }
 
-                    let boxes: number = config.rows * config.columns;
+                    let boxes: number = rows * columns;
 
-                    for (let row: number = 0; row < config.rows; row++) {
-                        for (let column: number = 0; column < config.columns; column++) {
+                    for (let row: number = 0; row < rows; row++) {
+                        for (let column: number = 0; column < columns; column++) {
                             let box: HTMLElement = document.createElement('div');
+
                             box.style.setProperty('--column', column.toString());
                             box.style.setProperty('--row', row.toString());
+                            box.style.animationDelay = 0.5 * Math.random() + 's';
 
                             if (config.animationCssClass) {
                                 config.animationCssClass.split(' ')
                                     .forEach(function name(params: string) {
                                         box.classList.add(params);
-                                    })
-                                // box.classList.add(config.animationCssClass);
+                                    });
+                            } else {
+                                box.classList.add('annihilation_animate');
                             }
 
                             if (config.onCreatesPartial) {
                                 config.onCreatesPartial(box, {
-                                    row,
+                                    columns,
+                                    rows,
                                     column,
-                                    gravityCenter: config.gravityCenter
+                                    row
                                 });
                             }
 
                             box.addEventListener('animationend', () => {
                                 boxes--;
                                 if (!boxes) {
-                                    resolve(canvas.toDataURL());
+                                    if (existsPosition) {
+                                        element.style.position = position;
+                                    } else {
+                                        element.style.position = '';
+                                    }
+
+                                    resolve({
+                                        element,
+                                        dataURL: canvas.toDataURL()
+                                    });
                                 }
                             });
 
@@ -99,13 +104,6 @@ export function annihilation(config: AnnihilationConfig): Promise<string> {
                     }
 
                     element.appendChild(parent);
-
-                    //todo: good way to clean. It is temp...
-                    // if (position !== undefined && !position) {
-                    //     element.style.position = position;
-                    // }
-
-                    // resolve(canvas.toDataURL());
                 });
         } else {
             reject('Element not found');

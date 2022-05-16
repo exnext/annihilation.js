@@ -1,11 +1,13 @@
 .annihilation {
-  position: relative; //calc this in js
+  background-color: initial !important;
+  background-image: initial !important;
+  background: initial !important;
 
-  & > *:not(.annihilation__content) {
+  & > *:not(&__content) {
     visibility: hidden;
   }
 
-  .annihilation__content {
+  &__content {
     --columns: 1;
     --rows: 1;
 
@@ -26,6 +28,17 @@
       width: calc(100% / var(--columns));
       height: calc(100% / var(--rows));
       background-position: calc(-100% * var(--column)) calc(-100% * var(--row));
+
+
+      &.annihilation_animate {
+        animation: annihilation_animate 0.5s forwards;
+      }
     }
+  }
+}
+
+@keyframes annihilation_animate {
+  to {
+    opacity: 0;
   }
 }
