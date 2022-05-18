@@ -15,7 +15,7 @@
     "type": "git",
     "url": "git+https://github.com/exnext/annihilation.js.git"
   },
-  "keywords": [],
+  "keywords": ["annihilation", "annihilation.js", "menu", "transform", "transformation", "damage", "destruction"],
   "author": "",
   "license": "MIT",
   "bugs": {

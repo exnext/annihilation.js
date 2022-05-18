@@ -7,11 +7,8 @@ export interface AnnihilationConfig {
     rows?: number;
     animationCssClass?: string;
     onCreatesPartial?: OnCreatesPartial;
-}
-
-export interface AnnihilationPromise {
-    element: HTMLElement;
-    dataURL: string;
+    onBeforeAnnihilation?: OnBeforeAnnihilation;
+    onPartialAnimationEnd?: OnPartialAnimationEnd;
 }
 
 export interface PartialParams {
@@ -19,20 +16,34 @@ export interface PartialParams {
     rows: number;
     column: number;
     row: number;
+    element: HTMLElement;
+    piece: HTMLElement
 }
 
-export type OnCreatesPartial = (element: HTMLElement, params: PartialParams) => void;
+export type OnCreatesPartial = (params: PartialParams) => void;
 
-export function annihilation(config: AnnihilationConfig): Promise<AnnihilationPromise> {
+export interface BeforeAnnihilation {
+    element: HTMLElement;
+}
+
+export type OnBeforeAnnihilation = (params: BeforeAnnihilation) => void;
+
+export type OnPartialAnimationEnd = (pieceCount: number, params: PartialParams) => void;
+
+
+export interface AnnihilationEnd {
+    element: HTMLElement
+}
+
+export function annihilation(config: AnnihilationConfig): Promise<AnnihilationEnd> {
     return new Promise(function (resolve, reject) {
         const element: HTMLElement = typeof config.element === 'string' ?
             <HTMLElement>document.querySelector(config.element) :
             config.element;
 
         if (element) {
-            let rect = element.getBoundingClientRect();
-
-            let columns: number = config.columns || 0,
+            let rect = element.getBoundingClientRect(),
+                columns: number = config.columns || 0,
                 rows: number = config.rows || 0;
 
             columns = columns || Math.round(rows * rect.width / rect.height) || 10;
@@ -51,41 +62,50 @@ export function annihilation(config: AnnihilationConfig): Promise<AnnihilationPr
 
                     let existsPosition: boolean = !!element.style.position;
                     let position: string = getComputedStyle(element).position;
-                    if (['absolute', 'relative'].indexOf(position) == -1) {
+                    if (position === 'static') {
                         element.style.position = 'relative';
                     }
 
-                    let boxes: number = rows * columns;
+                    let pieceCount: number = rows * columns;
 
                     for (let row: number = 0; row < rows; row++) {
                         for (let column: number = 0; column < columns; column++) {
-                            let box: HTMLElement = document.createElement('div');
+                            let piece: HTMLElement = document.createElement('div');
 
-                            box.style.setProperty('--column', column.toString());
-                            box.style.setProperty('--row', row.toString());
-                            box.style.animationDelay = 0.5 * Math.random() + 's';
+                            piece.style.setProperty('--column', column.toString());
+                            piece.style.setProperty('--row', row.toString());
+                            piece.style.animationDelay = 0.5 * Math.random() + 's';
 
                             if (config.animationCssClass) {
-                                config.animationCssClass.split(' ')
+                                config.animationCssClass.split(/\s+/g)
                                     .forEach(function name(params: string) {
-                                        box.classList.add(params);
+                                        piece.classList.add(params);
                                     });
                             } else {
-                                box.classList.add('annihilation_animate');
+                                piece.classList.add('annihilation_animate');
+                            }
+
+                            let partial: PartialParams = {
+                                columns,
+                                rows,
+                                column,
+                                row,
+                                element,
+                                piece
                             }
 
                             if (config.onCreatesPartial) {
-                                config.onCreatesPartial(box, {
-                                    columns,
-                                    rows,
-                                    column,
-                                    row
-                                });
+                                config.onCreatesPartial(partial);
                             }
 
-                            box.addEventListener('animationend', () => {
-                                boxes--;
-                                if (!boxes) {
+                            piece.addEventListener('animationend', () => {
+                                pieceCount--;
+
+                                if (config.onPartialAnimationEnd) {
+                                    config.onPartialAnimationEnd(pieceCount, partial);
+                                }
+
+                                if (!pieceCount) {
                                     if (existsPosition) {
                                         element.style.position = position;
                                     } else {
@@ -93,14 +113,19 @@ export function annihilation(config: AnnihilationConfig): Promise<AnnihilationPr
                                     }
 
                                     resolve({
-                                        element,
-                                        dataURL: canvas.toDataURL()
+                                        element
                                     });
                                 }
                             });
 
-                            parent.appendChild(box);
+                            parent.appendChild(piece);
                         }
+                    }
+
+                    if (config.onBeforeAnnihilation) {
+                        config.onBeforeAnnihilation({
+                            element: parent
+                        });
                     }
 
                     element.appendChild(parent);
