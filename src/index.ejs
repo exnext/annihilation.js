@@ -52,6 +52,10 @@
       align-items: center;
     }
 
+    .actions {
+      text-align: center;
+    }
+
     .result {
       position: relative;
       overflow: hidden;
@@ -115,9 +119,16 @@
 <body>
   <template id="section-content">
     <div class="content">
-      <pre>
-        <code class="source language-html"></code>
-      </pre>
+      <div>
+        <pre>
+          <code class="source language-html"></code>
+        </pre>
+        <div class="actions">
+          <button onclick="reset(this)">
+            RESET
+          </button>
+        </div>
+      </div>
 
       <div>
         <div class="result"></div>
@@ -331,6 +342,7 @@
         }
       </style>
 
+<div id="form_demo_11">
       <div id="form_demo_1">
         <form>
           <div class="mb-3">
@@ -346,14 +358,15 @@
           </div>
         </form>
       </div>
+    </div>
 
       <script>
         document.getElementById('form_demo_1_button')
           .addEventListener('click', function (event) {
             annihilation({
-              element: '#form_demo_1',
+              element: '#form_demo_11',
               columns: 20,
-              animationCssClass: 'animate__animated animate__zoomOut',
+              animationCssClass: 'animate__animatedx animate__zoomOutx',
               onCreatesPartial: (params) => {
                 let rect = params.element.getBoundingClientRect(),
                   colClick = Math.floor(params.columns * (event.clientX - rect.left) / rect.width),
@@ -371,6 +384,21 @@
   </section>
 
   <script>
+    function reset(element) {
+      let section = element;
+
+      while (section && !section.tagName.match(/section/gi)) {
+        section = section.parentElement;
+      }
+
+      if (section) {
+        let template = section.querySelector('template');
+        let result = section.querySelector('.result');
+        result.innerHTML = '';
+        result.appendChild(document.importNode(template.content.cloneNode(true), true));
+      }
+    }
+
     const sectionTemplates = {};
     document.querySelectorAll('template[id]')
       .forEach((template) => {
