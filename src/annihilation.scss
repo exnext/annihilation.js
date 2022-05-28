@@ -2,10 +2,7 @@
   background-color: initial !important;
   background-image: initial !important;
   background: initial !important;
-
-  // & > *:not(&__content) {
-    visibility: hidden;
-  // }
+  visibility: hidden;
 
   &__content {
     --columns: 1;
@@ -28,7 +25,6 @@
       width: calc(100% / var(--columns));
       height: calc(100% / var(--rows));
       background-position: calc(-100% * var(--column)) calc(-100% * var(--row));
-
 
       &.annihilation_animate {
         animation: annihilation_animate 0.5s forwards;

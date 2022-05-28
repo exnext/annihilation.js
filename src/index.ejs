@@ -213,8 +213,6 @@
           .addEventListener('click', function (event) {
             annihilation({
               element: '#img_demo_1'
-            }).then((result) => {
-              result.element.remove();
             });
           });
       </script>
@@ -248,8 +246,6 @@
                 let multiplier = Math.abs(params.row - rowClick) + Math.abs(params.column - colClick);
                 params.piece.style.animationDelay = 0.05 * multiplier + 's';
               }
-            }).then((result) => {
-              result.element.remove();
             });
           });
       </script>
@@ -292,8 +288,6 @@
                   params.piece.classList.add('animate__fadeOutRight');
                 }
               }
-            }).then((result) => {
-              result.element.remove();
             });
           });
       </script>
@@ -305,6 +299,13 @@
     <small>with animate.css and bootstrap</small>
 
     <template>
+      <style>
+        .carousel-item {
+          transition-duration: 0.6s;
+          transition-delay: 0.5s;
+        }
+      </style>
+
       <div id="carousel_demo_1">
         <div id="carouselExampleControls" class="carousel slide">
           <div class="carousel-inner">
@@ -330,44 +331,63 @@
       <script>
         let carousel = new bootstrap.Carousel('#carouselExampleControls', { interval: false });
 
+
+        document.getElementById('carouselExampleControls')
+          .addEventListener('slid.bs.carousel', function () {
+            document.querySelectorAll('#carouselExampleControls .carousel-item')
+              .forEach(function (element) {
+                element.classList.remove('annihilation');
+              })
+          });
+
         document.querySelector('#carousel_demo_1 .carousel-control-prev')
           .addEventListener('click', function (event) {
-            carousel.prev();
+            let done = false;
 
-            // annihilation({
-            //   element: '.carousel-item.active',
-            //   animationCssClass: 'animate__animated animate__fadeOutRight',
-            //   onCreatesPartial: (params) => {
-            //     params.piece.style.animationDelay = 0.01 * Math.random() + 's';
-            //   },
-            //   onPartialAnimationEnd: (pieceCount, params) => {
-            //     if (pieceCount < params.columns * params.rows) {
-            //       carousel.prev();
-            //     }
-            //   }
-            // }).then((result) => {
-            //   result.element.classList.remove('annihilation');
-            // });
+            annihilation({
+              element: '.carousel-item.active',
+              removeElement: false,
+              animationCssClass: 'animate__animated animate__fadeOutRight',
+              onCreatesPartial: (params) => {
+                params.piece.style.animationDelay = 0.1 * Math.random() + 's';
+              },
+              // onPartialAnimationEnd: (pieceCount, params) => {
+              //   if (!done) {//&& (pieceCount < 50 * params.columns * params.rows)
+              //     done = true;
+              //     carousel.prev();
+              //   }
+              // }
+            }).then((result) => {
+              // carousel.prev();
+              // result.element.classList.add('annihilation');
+            });
+
+            carousel.prev();
           });
 
         document.querySelector('#carousel_demo_1 .carousel-control-next')
           .addEventListener('click', function (event) {
-            carousel.next();
+            let done = false;
 
-            // annihilation({
-            //   element: '.carousel-item.active',
-            //   animationCssClass: 'animate__animated animate__fadeOutLeft',
-            //   onCreatesPartial: (params) => {
-            //     params.piece.style.animationDelay = 0.01 * Math.random() + 's';
-            //   },
-            //   onPartialAnimationEnd: (pieceCount, params) => {
-            //     if (pieceCount < params.columns * params.rows) {
-            //       carousel.next();
-            //     }
-            //   }
-            // }).then((result) => {
-            //   result.element.classList.remove('annihilation');
-            // });
+            annihilation({
+              element: '.carousel-item.active',
+              removeElement: false,
+              animationCssClass: 'animate__animated animate__slideOutLeft',
+              onCreatesPartial: (params) => {
+                params.piece.style.animationDelay = 0.1 * Math.random() + 's';
+              },
+              // onPartialAnimationEnd: (pieceCount, params) => {
+              //   if (!done) {//&& (pieceCount < 50 * params.columns * params.rows)
+              //     done = true;
+              //     carousel.next();
+              //   }
+              // }
+            }).then((result) => {
+              // carousel.next();
+              // result.element.classList.add('annihilation');
+            });
+
+            carousel.next();
           });
       </script>
     </template>
@@ -420,8 +440,6 @@
                 let multiplier = Math.abs(params.row - rowClick) + Math.abs(params.column - colClick);
                 params.piece.style.animationDelay = 0.01 * multiplier + 's';
               }
-            }).then((result) => {
-              result.element.remove();
             });
           });
       </script>
