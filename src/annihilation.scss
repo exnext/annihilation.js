@@ -3,9 +3,9 @@
   background-image: initial !important;
   background: initial !important;
 
-  & > *:not(&__content) {
+  // & > *:not(&__content) {
     visibility: hidden;
-  }
+  // }
 
   &__content {
     --columns: 1;

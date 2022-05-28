@@ -47,7 +47,7 @@ function getElement(element: string | HTMLElement): HTMLElement {
 }
 
 function getGridSize(element: HTMLElement, columns?: number, rows?: number): IGridSize {
-    let rect = element.getBoundingClientRect();
+    let rect: DOMRect = element.getBoundingClientRect();
 
     columns = columns || Math.round((rows || 0) * rect.width / rect.height) || 10;
     rows = rows || Math.round(columns * rect.height / rect.width) || 10;
@@ -56,7 +56,7 @@ function getGridSize(element: HTMLElement, columns?: number, rows?: number): IGr
 }
 
 function getCanvasByElementSize(element: HTMLElement): HTMLCanvasElement {
-    let rect = element.getBoundingClientRect();
+    let rect: DOMRect = element.getBoundingClientRect();
     let canvas: HTMLCanvasElement = document.createElement('canvas') as HTMLCanvasElement;
     canvas.width = rect.width;
     canvas.height = rect.height;
@@ -65,9 +65,10 @@ function getCanvasByElementSize(element: HTMLElement): HTMLCanvasElement {
 }
 
 function elementToCanvas(element: HTMLElement): Promise<HTMLCanvasElement> {
-    let rect = element.getBoundingClientRect();
+    let rect: DOMRect = element.getBoundingClientRect();
+    let canvas: HTMLCanvasElement = getCanvasByElementSize(element);
 
-    return html2canvas(element, { backgroundColor: 'inherit', scale: 1, width: rect.width, height: rect.height });
+    return html2canvas(element, { backgroundColor: 'inherit', scale: 1, width: rect.width, height: rect.height, canvas });
 }
 
 function elementToDataURL(element: HTMLElement): Promise<string> {
@@ -77,13 +78,43 @@ function elementToDataURL(element: HTMLElement): Promise<string> {
         });
 }
 
+function asClosedBox(element: HTMLElement): Promise<HTMLElement> {
+    return new Promise((resolve, reject) => {
+        let parent: HTMLElement = element.parentElement!;
+
+        if (!parent) {
+            reject('parentElement not found');
+            return;
+        }
+
+        let existsPosition: boolean = !!parent.style.position;
+        let position: string = getComputedStyle(parent).position;
+
+        if (position === 'static') {
+            parent.style.position = 'relative';
+        }
+
+        try {
+            resolve(element);
+        } catch (error) {
+            reject(error);
+        } finally {
+            if (existsPosition) {
+                parent.style.position = position;
+            } else {
+                parent.style.position = '';
+            }
+        }
+    });
+}
+
 export function annihilation0(config: IAnnihilationConfig): Promise<IAnnihilationEnd> {
     return new Promise(function (resolve, reject) {
         const element: HTMLElement = getElement(config.element);
 
         if (element) {
             elementToDataURL(element)
-                .then(function name(dataURL: string) {
+                .then(function (dataURL: string) {
                     let { columns, rows } = getGridSize(element, config.columns, config.rows);
 
                     element.classList.add('annihilation');
@@ -172,10 +203,99 @@ export function annihilation0(config: IAnnihilationConfig): Promise<IAnnihilatio
 }
 
 export function annihilation(config: IAnnihilationConfig): Promise<IAnnihilationEnd> {
+    return new Promise(function (resolve, reject) {
+        const element: HTMLElement = getElement(config.element);
+
+        if (element) {
+            asClosedBox(element)
+                .then(elementToDataURL)
+                .then(function (dataURL: string) {
+                    let rect: DOMRect = element.getBoundingClientRect();
+                    let rectParent: DOMRect = element.parentElement?.getBoundingClientRect() || rect;
+
+                    let { columns, rows } = getGridSize(element, config.columns, config.rows);
+
+
+                    element.classList.add('annihilation');
+
+                    let parent: HTMLElement = document.createElement('div');
+                    parent.classList.add('annihilation__content');
+
+                    parent.style.backgroundImage = `url(${dataURL})`;
+                    parent.style.setProperty('--columns', columns.toString());
+                    parent.style.setProperty('--rows', rows.toString());
+                    parent.style.top = `${rect.top - rectParent.top}px`;
+                    parent.style.left = `${rect.left - rectParent.left}px`;
+
+                    let pieceCount: number = rows * columns;
+
+                    for (let row: number = 0; row < rows; row++) {
+                        for (let column: number = 0; column < columns; column++) {
+                            let piece: HTMLElement = document.createElement('div');
+
+                            piece.style.setProperty('--column', column.toString());
+                            piece.style.setProperty('--row', row.toString());
+                            piece.style.animationDelay = 0.5 * Math.random() + 's';
+
+                            if (config.animationCssClass) {
+                                config.animationCssClass.split(/\s+/g)
+                                    .forEach(function name(params: string) {
+                                        piece.classList.add(params);
+                                    });
+                            } else {
+                                piece.classList.add('annihilation_animate');
+                            }
+
+                            let partial: IPartialParams = {
+                                columns,
+                                rows,
+                                column,
+                                row,
+                                element,
+                                piece
+                            }
+
+                            if (config.onCreatesPartial) {
+                                config.onCreatesPartial(partial);
+                            }
+
+                            piece.addEventListener('animationend', () => {
+                                pieceCount--;
+
+                                if (config.onPartialAnimationEnd) {
+                                    config.onPartialAnimationEnd(pieceCount, partial);
+                                }
+
+                                if (!pieceCount) {
+                                    resolve({
+                                        element
+                                    });
+                                }
+                            });
+
+                            parent.appendChild(piece);
+                        }
+                    }
+
+                    if (config.onBeforeAnnihilation) {
+                        config.onBeforeAnnihilation({
+                            element: parent
+                        });
+                    }
+
+                    element.parentElement!.appendChild(parent);
+                });
+        } else {
+            reject('Element not found');
+        }
+    });
+}
+
+export function annihilation2(config: IAnnihilationConfig): Promise<IAnnihilationEnd> {
     const element: HTMLElement = getElement(config.element);
 
     return elementToCanvas(element)
-        .then(function name(canvas: HTMLCanvasElement) {
+        .then(function (canvas: HTMLCanvasElement) {
             element.classList.add('annihilation');
             canvas.classList.add('annihilation__content');
             element.appendChild(canvas);
@@ -187,8 +307,29 @@ export function annihilation(config: IAnnihilationConfig): Promise<IAnnihilation
 export function annihilation3(config: IAnnihilationConfig): Promise<IAnnihilationEnd> {
     const element: HTMLElement = getElement(config.element);
 
+    return asClosedBox(element)
+        .then(elementToCanvas)
+        .then(function (canvas: HTMLCanvasElement) {
+            let rect: DOMRect = element.getBoundingClientRect();
+            let rectParent: DOMRect = element.parentElement?.getBoundingClientRect() || rect;
+
+            element.classList.add('annihilation');
+
+            canvas.classList.add('annihilation__content');
+            canvas.style.top = `${rect.top - rectParent.top}px`;
+            canvas.style.left = `${rect.left - rectParent.left}px`;
+
+            element.parentElement?.appendChild(canvas);
+
+            return { element };
+        });
+}
+
+export function annihilation4(config: IAnnihilationConfig): Promise<IAnnihilationEnd> {
+    const element: HTMLElement = getElement(config.element);
+
     return elementToDataURL(element)
-        .then(function name(dataUrl: string) {
+        .then(function (dataUrl: string) {
             element.classList.add('annihilation');
             let img = new Image();
             img.src = dataUrl;
