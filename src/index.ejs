@@ -18,6 +18,50 @@
   <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
   <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
 
+  <script>
+    function reset(element) {
+      let section = element;
+
+      while (section && !section.tagName.match(/section/gi)) {
+        section = section.parentElement;
+      }
+
+      if (section) {
+        let template = section.querySelector('template');
+        let result = section.querySelector('.result');
+        result.innerHTML = '';
+        result.appendChild(document.importNode(template.content.cloneNode(true), true));
+      }
+    }
+
+    function onload() {
+      const sectionTemplates = {};
+      document.querySelectorAll('template[id]')
+        .forEach((template) => {
+          sectionTemplates[template.id] = template;
+        });
+
+      const sections = document.querySelectorAll('section.demo');
+
+      for (let section of sections) {
+        let template = section.querySelector('template');
+
+        if (template) {
+          let sectionTemplateId = ['section-content', section.getAttribute('template')].filter(x => x).join('-');
+          section.appendChild(sectionTemplates[sectionTemplateId].content.cloneNode(true));
+
+          let source = section.querySelector('.source');
+          source.textContent = template.innerHTML;
+
+          let result = section.querySelector('.result');
+          result.appendChild(document.importNode(template.content.cloneNode(true), true));
+        }
+      }
+
+      hljs.highlightAll();
+    }
+  </script>
+
   <style>
     body {
       background-color: black;
@@ -79,7 +123,8 @@
   </style>
 
   <style name="img-demo">
-    .img-demo .result, .carousel-item {
+    .img-demo .result,
+    .carousel-item {
       text-align: center;
     }
 
@@ -116,7 +161,7 @@
   </style>
 </head>
 
-<body>
+<body onload="onload()">
   <template id="section-content">
     <div class="content">
       <div>
@@ -169,7 +214,7 @@
             annihilation({
               element: '#img_demo_1'
             }).then((result) => {
-              result.element.remove();
+              // result.element.remove();
             });
           });
       </script>
@@ -283,12 +328,12 @@
       </div>
 
       <script>
-        let carousel = new bootstrap.Carousel('#carouselExampleControls', {interval: false});
+        let carousel = new bootstrap.Carousel('#carouselExampleControls', { interval: false });
 
         document.querySelector('#carousel_demo_1 .carousel-control-prev')
-          .addEventListener('click', function (event) {          
+          .addEventListener('click', function (event) {
             carousel.prev();
-            
+
             // annihilation({
             //   element: '.carousel-item.active',
             //   animationCssClass: 'animate__animated animate__fadeOutRight',
@@ -342,23 +387,23 @@
         }
       </style>
 
-<div id="form_demo_11">
-      <div id="form_demo_1">
-        <form>
-          <div class="mb-3">
-            <label for="login" class="form-label">Login</label>
-            <input type="text" class="form-control" id="login" value="any login">
-          </div>
-          <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <input type="password" class="form-control" id="password" value="any password">
-          </div>
-          <div class="mb-3">
-            <button type="button" class="btn btn-primary mb-3" id="form_demo_1_button">Click me!</button>
-          </div>
-        </form>
+      <div id="form_demo_11">
+        <div id="form_demo_1">
+          <form>
+            <div class="mb-3">
+              <label for="login" class="form-label">Login</label>
+              <input type="text" class="form-control" id="login" value="any login">
+            </div>
+            <div class="mb-3">
+              <label for="password" class="form-label">Password</label>
+              <input type="password" class="form-control" id="password" value="any password">
+            </div>
+            <div class="mb-3">
+              <button type="button" class="btn btn-primary mb-3" id="form_demo_1_button">Click me!</button>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
 
       <script>
         document.getElementById('form_demo_1_button')
@@ -366,7 +411,7 @@
             annihilation({
               element: '#form_demo_11',
               columns: 20,
-              animationCssClass: 'animate__animatedx animate__zoomOutx',
+              animationCssClass: 'animate__animated animate__zoomOut',
               onCreatesPartial: (params) => {
                 let rect = params.element.getBoundingClientRect(),
                   colClick = Math.floor(params.columns * (event.clientX - rect.left) / rect.width),
@@ -382,48 +427,6 @@
       </script>
     </template>
   </section>
-
-  <script>
-    function reset(element) {
-      let section = element;
-
-      while (section && !section.tagName.match(/section/gi)) {
-        section = section.parentElement;
-      }
-
-      if (section) {
-        let template = section.querySelector('template');
-        let result = section.querySelector('.result');
-        result.innerHTML = '';
-        result.appendChild(document.importNode(template.content.cloneNode(true), true));
-      }
-    }
-
-    const sectionTemplates = {};
-    document.querySelectorAll('template[id]')
-      .forEach((template) => {
-        sectionTemplates[template.id] = template;
-      });
-
-    const sections = document.querySelectorAll('section.demo');
-
-    for (let section of sections) {
-      let template = section.querySelector('template');
-
-      if (template) {
-        let sectionTemplateId = ['section-content', section.getAttribute('template')].filter(x => x).join('-');
-        section.appendChild(sectionTemplates[sectionTemplateId].content.cloneNode(true));
-
-        let source = section.querySelector('.source');
-        source.textContent = template.innerHTML;
-
-        let result = section.querySelector('.result');
-        result.appendChild(document.importNode(template.content.cloneNode(true), true));
-      }
-    }
-
-    hljs.highlightAll();
-  </script>
 </body>
 
 </html>

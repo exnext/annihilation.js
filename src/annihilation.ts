@@ -1,8 +1,7 @@
 import './annihilation.scss';
 import html2canvas from 'html2canvas';
-import { toCanvas, toPng, toJpeg, toSvg } from 'html-to-image';
 
-export interface AnnihilationConfig {
+export interface IAnnihilationConfig {
     element: string | HTMLElement;
     columns?: number;
     rows?: number;
@@ -12,7 +11,7 @@ export interface AnnihilationConfig {
     onPartialAnimationEnd?: OnPartialAnimationEnd;
 }
 
-export interface PartialParams {
+export interface IPartialParams {
     columns: number;
     rows: number;
     column: number;
@@ -21,18 +20,18 @@ export interface PartialParams {
     piece: HTMLElement
 }
 
-export type OnCreatesPartial = (params: PartialParams) => void;
+export type OnCreatesPartial = (params: IPartialParams) => void;
 
-export interface BeforeAnnihilation {
+export interface IBeforeAnnihilation {
     element: HTMLElement;
 }
 
-export type OnBeforeAnnihilation = (params: BeforeAnnihilation) => void;
+export type OnBeforeAnnihilation = (params: IBeforeAnnihilation) => void;
 
-export type OnPartialAnimationEnd = (pieceCount: number, params: PartialParams) => void;
+export type OnPartialAnimationEnd = (pieceCount: number, params: IPartialParams) => void;
 
 
-export interface AnnihilationEnd {
+export interface IAnnihilationEnd {
     element: HTMLElement;
 }
 
@@ -66,7 +65,9 @@ function getCanvasByElementSize(element: HTMLElement): HTMLCanvasElement {
 }
 
 function elementToCanvas(element: HTMLElement): Promise<HTMLCanvasElement> {
-    return html2canvas(element, { backgroundColor: 'inherit', scale: 1 });
+    let rect = element.getBoundingClientRect();
+
+    return html2canvas(element, { backgroundColor: 'inherit', scale: 1, width: rect.width, height: rect.height });
 }
 
 function elementToDataURL(element: HTMLElement): Promise<string> {
@@ -76,7 +77,7 @@ function elementToDataURL(element: HTMLElement): Promise<string> {
         });
 }
 
-export function annihilation(config: AnnihilationConfig): Promise<AnnihilationEnd> {
+export function annihilation0(config: IAnnihilationConfig): Promise<IAnnihilationEnd> {
     return new Promise(function (resolve, reject) {
         const element: HTMLElement = getElement(config.element);
 
@@ -119,7 +120,7 @@ export function annihilation(config: AnnihilationConfig): Promise<AnnihilationEn
                                 piece.classList.add('annihilation_animate');
                             }
 
-                            let partial: PartialParams = {
+                            let partial: IPartialParams = {
                                 columns,
                                 rows,
                                 column,
@@ -170,31 +171,7 @@ export function annihilation(config: AnnihilationConfig): Promise<AnnihilationEn
     });
 }
 
-
-
-
-function elementToCanvas2(element: HTMLElement): Promise<HTMLCanvasElement> {
-    return toCanvas(element, {
-        // backgroundColor: 'initial',
-        // pixelRatio: 1,//window.devicePixelRatio,
-        // width: rect.width,
-        // height: rect.height,
-        // canvasWidth: rect.width,
-        // canvasHeight: rect.height,
-        // style: {
-        //     margin: '0px',
-        //     padding: '0px'
-        // }
-    });
-}
-
-function elementToDataURL2(element: HTMLElement): Promise<string> {
-    return toSvg(element);
-    // return toPng(element);
-    // return toJpeg(element);
-}
-
-export function annihilation2(config: AnnihilationConfig): Promise<any> {
+export function annihilation(config: IAnnihilationConfig): Promise<IAnnihilationEnd> {
     const element: HTMLElement = getElement(config.element);
 
     return elementToCanvas(element)
@@ -203,11 +180,11 @@ export function annihilation2(config: AnnihilationConfig): Promise<any> {
             canvas.classList.add('annihilation__content');
             element.appendChild(canvas);
 
-            return element;
+            return { element };
         });
 }
 
-export function annihilation3(config: AnnihilationConfig): Promise<any> {
+export function annihilation3(config: IAnnihilationConfig): Promise<IAnnihilationEnd> {
     const element: HTMLElement = getElement(config.element);
 
     return elementToDataURL(element)
@@ -218,6 +195,6 @@ export function annihilation3(config: AnnihilationConfig): Promise<any> {
             img.classList.add('annihilation__content');
             element.appendChild(img);
 
-            return element;
+            return { element };
         });
 }
