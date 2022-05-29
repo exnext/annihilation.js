@@ -296,7 +296,7 @@
 
   <section class="demo">
     <h3>Example 4</h3>
-    <small>with animate.css and bootstrap</small>
+    <small>with animate.css and bootstrap carousel</small>
 
     <template>
       <style>
@@ -311,7 +311,7 @@
       </style>
 
       <div id="carousel_demo_1">
-        <div id="carouselExampleControls" class="carousel slide">
+        <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
           <div class="carousel-inner">
             <div class="carousel-item active">
               <img src="assets/first.jpg" />
@@ -323,64 +323,48 @@
               <img src="assets/third.jpg" />
             </div>
           </div>
-          <button class="carousel-control-prev" type="button">
+          <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls"
+            data-bs-slide="prev">
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
           </button>
-          <button class="carousel-control-next" type="button">
+          <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls"
+            data-bs-slide="next">
             <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
           </button>
         </div>
       </div>
 
       <script>
-        var carousel = new bootstrap.Carousel('#carouselExampleControls', { interval: false });
+        document.getElementById('carouselExampleControls')
+          .addEventListener('slide.bs.carousel', function (event) {
+            let direction = event.direction == 'left' ?
+              'animate__slideOutLeft' :
+              'animate__fadeOutRight'
+            
+            annihilation({
+              element: '.carousel-item.active',
+              removeElement: false,
+              rows: 10,
+              columns: 1,
+              animationCssClass: 'animate__animated ' + direction,
+              onCreatesPartial: (params) => {
+                params.piece.style.animationDelay = 0.5 * Math.random() + 's';
+              }
+            }).then(({ element }) => {
+              if (element.classList.contains('carousel-item-end')) {
+                element.classList.add('hide-item');
+              }
+            });
+          });
 
         document.getElementById('carouselExampleControls')
-          .addEventListener('slid.bs.carousel', function () {
+          .addEventListener('slid.bs.carousel', function (event) {
             document.querySelectorAll('#carouselExampleControls .carousel-item')
               .forEach(function (element) {
                 element.classList.remove('hide-item');
               });
-          });
-
-        document.querySelector('#carousel_demo_1 .carousel-control-prev')
-          .addEventListener('click', function (event) {
-            annihilation({
-              element: '.carousel-item.active',
-              removeElement: false,
-              rows: 10,
-              columns: 1,
-              animationCssClass: 'animate__animated animate__fadeOutRight',
-              onCreatesPartial: (params) => {
-                params.piece.style.animationDelay = 0.5 * Math.random() + 's';
-              }
-            }).then(({ element }) => {
-              if (element.classList.contains('carousel-item-end')) {
-                element.classList.add('hide-item');
-              }
-            });
-
-            carousel.prev();
-          });
-
-        document.querySelector('#carousel_demo_1 .carousel-control-next')
-          .addEventListener('click', function (event) {
-            annihilation({
-              element: '.carousel-item.active',
-              removeElement: false,
-              rows: 10,
-              columns: 1,
-              animationCssClass: 'animate__animated animate__slideOutLeft',
-              onCreatesPartial: (params) => {
-                params.piece.style.animationDelay = 0.5 * Math.random() + 's';
-              }
-            }).then(({ element }) => {
-              if (element.classList.contains('carousel-item-end')) {
-                element.classList.add('hide-item');
-              }
-            });
-
-            carousel.next();
           });
       </script>
     </template>
