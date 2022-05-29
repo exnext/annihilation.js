@@ -304,6 +304,10 @@
           transition-duration: 0.6s;
           transition-delay: 0.5s;
         }
+
+        .carousel-item.hide-item {
+          visibility: hidden;
+        }
       </style>
 
       <div id="carousel_demo_1">
@@ -329,37 +333,31 @@
       </div>
 
       <script>
-        let carousel = new bootstrap.Carousel('#carouselExampleControls', { interval: false });
-
+        var carousel = new bootstrap.Carousel('#carouselExampleControls', { interval: false });
 
         document.getElementById('carouselExampleControls')
           .addEventListener('slid.bs.carousel', function () {
             document.querySelectorAll('#carouselExampleControls .carousel-item')
               .forEach(function (element) {
-                element.classList.remove('annihilation');
-              })
+                element.classList.remove('hide-item');
+              });
           });
 
         document.querySelector('#carousel_demo_1 .carousel-control-prev')
           .addEventListener('click', function (event) {
-            let done = false;
-
             annihilation({
               element: '.carousel-item.active',
               removeElement: false,
+              rows: 10,
+              columns: 1,
               animationCssClass: 'animate__animated animate__fadeOutRight',
               onCreatesPartial: (params) => {
-                params.piece.style.animationDelay = 0.1 * Math.random() + 's';
-              },
-              // onPartialAnimationEnd: (pieceCount, params) => {
-              //   if (!done) {//&& (pieceCount < 50 * params.columns * params.rows)
-              //     done = true;
-              //     carousel.prev();
-              //   }
-              // }
-            }).then((result) => {
-              // carousel.prev();
-              // result.element.classList.add('annihilation');
+                params.piece.style.animationDelay = 0.5 * Math.random() + 's';
+              }
+            }).then(({ element }) => {
+              if (element.classList.contains('carousel-item-end')) {
+                element.classList.add('hide-item');
+              }
             });
 
             carousel.prev();
@@ -367,24 +365,19 @@
 
         document.querySelector('#carousel_demo_1 .carousel-control-next')
           .addEventListener('click', function (event) {
-            let done = false;
-
             annihilation({
               element: '.carousel-item.active',
               removeElement: false,
+              rows: 10,
+              columns: 1,
               animationCssClass: 'animate__animated animate__slideOutLeft',
               onCreatesPartial: (params) => {
-                params.piece.style.animationDelay = 0.1 * Math.random() + 's';
-              },
-              // onPartialAnimationEnd: (pieceCount, params) => {
-              //   if (!done) {//&& (pieceCount < 50 * params.columns * params.rows)
-              //     done = true;
-              //     carousel.next();
-              //   }
-              // }
-            }).then((result) => {
-              // carousel.next();
-              // result.element.classList.add('annihilation');
+                params.piece.style.animationDelay = 0.5 * Math.random() + 's';
+              }
+            }).then(({ element }) => {
+              if (element.classList.contains('carousel-item-end')) {
+                element.classList.add('hide-item');
+              }
             });
 
             carousel.next();

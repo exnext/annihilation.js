@@ -195,7 +195,7 @@ export function annihilation(options: IAnnihilationOptions): Promise<IAnnihilati
                                 if (!pieceCount) {
                                     parent.remove();
                                     
-                                    // element.classList.remove('annihilation');
+                                    element.classList.remove('annihilation');
                                     if (opt.removeElement) {
                                         element.remove();
                                     }
