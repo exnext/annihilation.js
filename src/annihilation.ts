@@ -44,6 +44,8 @@ interface IGridSize {
 interface IPosition {
     top: number;
     left: number;
+    width: number;
+    height: number;
 }
 
 function getElement(element: string | HTMLElement): HTMLElement {
@@ -120,7 +122,9 @@ function getPosition(element: HTMLElement): IPosition {
 
     return {
         top: rect.top - rectParent.top,
-        left: rect.left - rectParent.left
+        left: rect.left - rectParent.left,
+        width: rect.width,
+        height: rect.height
     }
 }
 
@@ -140,7 +144,7 @@ export function annihilation(options: IAnnihilationOptions): Promise<IAnnihilati
                 .then(elementToDataURL)
                 .then(function (dataURL: string) {
                     let { columns, rows } = getGridSize(element, opt.columns, opt.rows);
-                    let { top, left } = getPosition(element);
+                    let { top, left, width, height } = getPosition(element);
 
                     element.classList.add('annihilation');
 
@@ -152,6 +156,8 @@ export function annihilation(options: IAnnihilationOptions): Promise<IAnnihilati
                     parent.style.setProperty('--rows', rows.toString());
                     parent.style.top = `${top}px`;
                     parent.style.left = `${left}px`;
+                    parent.style.width = `${width}px`;
+                    parent.style.height = `${height}px`;
 
                     let pieceCount: number = rows * columns;
 
@@ -231,13 +237,15 @@ export function annihilationPreview(options: IAnnihilationOptions): Promise<IAnn
     return asClosedBox(element)
         .then(elementToCanvas)
         .then(function (canvas: HTMLCanvasElement) {
-            let { top, left } = getPosition(element);
+            let { top, left, width, height } = getPosition(element);
 
             element.classList.add('annihilation');
 
             canvas.classList.add('annihilation__content');
             canvas.style.top = `${top}px`;
             canvas.style.left = `${left}px`;
+            canvas.style.width = `${width}px`;
+            canvas.style.height = `${height}px`;
 
             element.parentElement?.appendChild(canvas);
 
