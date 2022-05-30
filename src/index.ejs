@@ -256,50 +256,8 @@
     </template>
   </section>
 
-  <section class="demo img-demo">
-    <h3>Example 3</h3>
-    <small>with animate.css</small>
-
-    <template>
-      <div id="img_demo_3">
-        <img src="assets/third.jpg" />
-      </div>
-
-      <script>
-        document.getElementById('img_demo_3')
-          .addEventListener('click', function (event) {
-            let rect = event.target.getBoundingClientRect(),
-              columns = 15,
-              rows = Math.round(columns * rect.height / rect.width),
-              colClick = Math.floor(columns * (event.clientX - rect.left) / rect.width),
-              rowClick = Math.floor(rows * (event.clientY - rect.top) / rect.height);
-
-            annihilation({
-              element: event.currentTarget,
-              columns,
-              rows,
-              animationCssClass: 'animate__animated',
-              onCreatesPartial: (params) => {
-                let multiplier = 0;
-
-                if (colClick > params.column) {
-                  multiplier = Math.max(params.column - Math.abs(params.row - rowClick), 0);
-                  params.piece.style.animationDelay = 0.05 * multiplier + 's';
-                  params.piece.classList.add('animate__fadeOutLeft');
-                } else {
-                  multiplier = Math.max(params.columns - params.column - Math.abs(params.row - rowClick), 0);
-                  params.piece.style.animationDelay = 0.05 * multiplier + 's';
-                  params.piece.classList.add('animate__fadeOutRight');
-                }
-              }
-            });
-          });
-      </script>
-    </template>
-  </section>
-
   <section class="demo">
-    <h3>Example 4</h3>
+    <h3>Example 3</h3>
     <small>with animate.css and bootstrap carousel</small>
 
     <template>
@@ -374,7 +332,7 @@
   </section>
 
   <section class="demo background">
-    <h3>Example 5</h3>
+    <h3>Example 4</h3>
     <small>with animate.css and bootstrap</small>
 
     <template>
@@ -425,8 +383,8 @@
   </section>
 
   <section class="demo background">
-    <h3>Example 6</h3>
-    <small>with bootstrap and custom animation</small>
+    <h3>Example 5</h3>
+    <small>with bootstrap modal, animate.css and custom animation</small>
 
     <template>
       <style>
