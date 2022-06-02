@@ -1,0 +1,40 @@
+.annihilation {
+  background-color: initial !important;
+  background-image: initial !important;
+  background: initial !important;
+  visibility: hidden;
+
+  &__content {
+    --columns: 1;
+    --rows: 1;
+
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    display: flex;
+    flex-wrap: wrap;
+    background-size: 0;
+
+    & > * {
+      --column: 0;
+      --row: 0;
+
+      background-image: inherit;
+      width: calc(100% / var(--columns));
+      height: calc(100% / var(--rows));
+      background-position: calc(-100% * var(--column)) calc(-100% * var(--row));
+
+      &.annihilation_animate {
+        animation: annihilation_animate 0.5s forwards;
+      }
+    }
+  }
+}
+
+@keyframes annihilation_animate {
+  to {
+    opacity: 0;
+  }
+}
