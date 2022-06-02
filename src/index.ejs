@@ -204,7 +204,7 @@
   </section>
 
   <section class="demo img-demo">
-    <h3>Example 1</h3>
+    <h3>Example usage 1</h3>
     <small>basic</small>
 
     <template>
@@ -224,7 +224,7 @@
   </section>
 
   <section class="demo img-demo">
-    <h3>Example 2</h3>
+    <h3>Example usage 2</h3>
     <small>with animate.css and the mouse coordinates</small>
 
     <template>
@@ -246,7 +246,7 @@
               columns,
               rows,
               animationCssClass: 'animate__animated animate__zoomOut',
-              onCreatesPartial: (params) => {
+              onCreatedCell: (params) => {
                 let multiplier = Math.abs(params.row - rowClick) + Math.abs(params.column - colClick);
                 params.piece.style.animationDelay = 0.05 * multiplier + 's';
               }
@@ -257,7 +257,7 @@
   </section>
 
   <section class="demo">
-    <h3>Example 3</h3>
+    <h3>Example usage 3</h3>
     <small>with animate.css and bootstrap carousel</small>
 
     <template>
@@ -310,7 +310,7 @@
               rows: 10,
               columns: 1,
               animationCssClass: 'animate__animated ' + direction,
-              onCreatesPartial: (params) => {
+              onCreatedCell: (params) => {
                 params.piece.style.animationDelay = 0.5 * Math.random() + 's';
               }
             }).then(({ element }) => {
@@ -332,7 +332,7 @@
   </section>
 
   <section class="demo background">
-    <h3>Example 4</h3>
+    <h3>Example usage 4</h3>
     <small>with animate.css and bootstrap</small>
 
     <template>
@@ -368,7 +368,7 @@
               element: '#form_demo_1',
               columns: 20,
               animationCssClass: 'animate__animated animate__zoomOut',
-              onCreatesPartial: (params) => {
+              onCreatedCell: (params) => {
                 let rect = params.element.getBoundingClientRect(),
                   colClick = Math.floor(params.columns * (event.clientX - rect.left) / rect.width),
                   rowClick = Math.floor(params.rows * (event.clientY - rect.top) / rect.height);
@@ -382,8 +382,8 @@
     </template>
   </section>
 
-  <section class="demo background">
-    <h3>Example 5</h3>
+  <section class="demo">
+    <h3>Example usage 5</h3>
     <small>with bootstrap modal, animate.css and custom animation</small>
 
     <template>
@@ -489,7 +489,7 @@
                     columns: 1,
                     rows: 10,
                     animationCssClass: 'animate__animated',
-                    onCreatesPartial: (params) => {
+                    onCreatedCell: (params) => {
                       let animation = params.row % 2 ? 'animate__fadeOutLeft' : 'animate__fadeOutRight';
                       params.piece.classList.add(animation);
                       params.piece.style.animationDelay = 0.01 * params.row + 's';
@@ -500,7 +500,7 @@
                 case 'Explosion':
                   options = {
                     animationCssClass: 'explosion_animate',
-                    onCreatesPartial: (params) => {
+                    onCreatedCell: (params) => {
                       let x = -100 * ((params.columns / 2) - params.column), y = -100 * ((params.rows / 2) - params.row);
                       params.piece.style.setProperty('--x', x + '%');
                       params.piece.style.setProperty('--y', y + '%');

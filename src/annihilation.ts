@@ -7,12 +7,12 @@ export interface IAnnihilationOptions {
     columns?: number;
     rows?: number;
     animationCssClass?: string;
-    onCreatesPartial?: OnCreatesPartial;
+    onCreatedCell?: OnCreatedCell;
+    onCellAnimationEnd?: OnCellAnimationEnd;
     onBeforeAnnihilation?: OnBeforeAnnihilation;
-    onPartialAnimationEnd?: OnPartialAnimationEnd;
 }
 
-export interface IPartialParams {
+export interface ICellParams {
     columns: number;
     rows: number;
     column: number;
@@ -21,15 +21,15 @@ export interface IPartialParams {
     piece: HTMLElement
 }
 
-export type OnCreatesPartial = (params: IPartialParams) => void;
+export type OnCreatedCell = (params: ICellParams) => void;
 
 export interface IBeforeAnnihilation {
-    element: HTMLElement;
+    annihilationElement: HTMLElement;
 }
 
 export type OnBeforeAnnihilation = (params: IBeforeAnnihilation) => void;
 
-export type OnPartialAnimationEnd = (pieceCount: number, params: IPartialParams) => void;
+export type OnCellAnimationEnd = (count: number, params: ICellParams) => void;
 
 
 export interface IAnnihilationEnd {
@@ -148,18 +148,18 @@ export function annihilation(options: IAnnihilationOptions): Promise<IAnnihilati
 
                     element.classList.add('annihilation');
 
-                    let parent: HTMLElement = document.createElement('div');
-                    parent.classList.add('annihilation__content');
+                    let annihilationElement: HTMLElement = document.createElement('div');
+                    annihilationElement.classList.add('annihilation__content');
 
-                    parent.style.backgroundImage = `url(${dataURL})`;
-                    parent.style.setProperty('--columns', columns.toString());
-                    parent.style.setProperty('--rows', rows.toString());
-                    parent.style.top = `${top}px`;
-                    parent.style.left = `${left}px`;
-                    parent.style.width = `${width}px`;
-                    parent.style.height = `${height}px`;
+                    annihilationElement.style.backgroundImage = `url(${dataURL})`;
+                    annihilationElement.style.setProperty('--columns', columns.toString());
+                    annihilationElement.style.setProperty('--rows', rows.toString());
+                    annihilationElement.style.top = `${top}px`;
+                    annihilationElement.style.left = `${left}px`;
+                    annihilationElement.style.width = `${width}px`;
+                    annihilationElement.style.height = `${height}px`;
 
-                    let pieceCount: number = rows * columns;
+                    let cellCount: number = rows * columns;
 
                     for (let row: number = 0; row < rows; row++) {
                         for (let column: number = 0; column < columns; column++) {
@@ -178,7 +178,7 @@ export function annihilation(options: IAnnihilationOptions): Promise<IAnnihilati
                                 piece.classList.add('annihilation_animate');
                             }
 
-                            let partial: IPartialParams = {
+                            let cell: ICellParams = {
                                 columns,
                                 rows,
                                 column,
@@ -187,19 +187,19 @@ export function annihilation(options: IAnnihilationOptions): Promise<IAnnihilati
                                 piece
                             }
 
-                            if (opt.onCreatesPartial) {
-                                opt.onCreatesPartial(partial);
+                            if (opt.onCreatedCell) {
+                                opt.onCreatedCell(cell);
                             }
 
                             piece.addEventListener('animationend', () => {
-                                pieceCount--;
+                                cellCount--;
 
-                                if (opt.onPartialAnimationEnd) {
-                                    opt.onPartialAnimationEnd(pieceCount, partial);
+                                if (opt.onCellAnimationEnd) {
+                                    opt.onCellAnimationEnd(cellCount, cell);
                                 }
 
-                                if (!pieceCount) {
-                                    parent.remove();
+                                if (!cellCount) {
+                                    annihilationElement.remove();
                                     
                                     element.classList.remove('annihilation');
                                     if (opt.removeElement) {
@@ -212,17 +212,17 @@ export function annihilation(options: IAnnihilationOptions): Promise<IAnnihilati
                                 }
                             });
 
-                            parent.appendChild(piece);
+                            annihilationElement.appendChild(piece);
                         }
                     }
 
                     if (opt.onBeforeAnnihilation) {
                         opt.onBeforeAnnihilation({
-                            element: parent
+                            annihilationElement
                         });
                     }
 
-                    element.parentElement!.appendChild(parent);
+                    element.parentElement!.appendChild(annihilationElement);
                 });
         } else {
             reject('Element not found');
