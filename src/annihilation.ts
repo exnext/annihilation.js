@@ -1,132 +1,7 @@
 import './annihilation.scss';
-import html2canvas from 'html2canvas';
-
-export interface IAnnihilationOptions {
-    element: string | HTMLElement;
-    removeElement: boolean;
-    columns?: number;
-    rows?: number;
-    animationCssClass?: string;
-    onCreatedCell?: OnCreatedCell;
-    onCellAnimationEnd?: OnCellAnimationEnd;
-    onBeforeAnnihilation?: OnBeforeAnnihilation;
-}
-
-export interface ICellParams {
-    columns: number;
-    rows: number;
-    column: number;
-    row: number;
-    element: HTMLElement;
-    piece: HTMLElement
-}
-
-export type OnCreatedCell = (params: ICellParams) => void;
-
-export interface IBeforeAnnihilation {
-    annihilationElement: HTMLElement;
-}
-
-export type OnBeforeAnnihilation = (params: IBeforeAnnihilation) => void;
-
-export type OnCellAnimationEnd = (count: number, params: ICellParams) => void;
-
-
-export interface IAnnihilationEnd {
-    element: HTMLElement;
-}
-
-interface IGridSize {
-    columns: number;
-    rows: number;
-}
-
-interface IPosition {
-    top: number;
-    left: number;
-    width: number;
-    height: number;
-}
-
-function getElement(element: string | HTMLElement): HTMLElement {
-    return typeof element === 'string' ?
-        <HTMLElement>document.querySelector(element) :
-        element;
-}
-
-function getGridSize(element: HTMLElement, columns?: number, rows?: number): IGridSize {
-    let rect: DOMRect = element.getBoundingClientRect();
-
-    columns = columns || Math.round((rows || 0) * rect.width / rect.height) || 10;
-    rows = rows || Math.round(columns * rect.height / rect.width) || 10;
-
-    return { columns, rows };
-}
-
-function getCanvasByElementSize(element: HTMLElement): HTMLCanvasElement {
-    let rect: DOMRect = element.getBoundingClientRect();
-    let canvas: HTMLCanvasElement = document.createElement('canvas') as HTMLCanvasElement;
-    canvas.width = rect.width;
-    canvas.height = rect.height;
-
-    return canvas;
-}
-
-function elementToCanvas(element: HTMLElement): Promise<HTMLCanvasElement> {
-    let rect: DOMRect = element.getBoundingClientRect();
-    let canvas: HTMLCanvasElement = getCanvasByElementSize(element);
-
-    return html2canvas(element, { backgroundColor: 'inherit', scale: 1, width: rect.width, height: rect.height, canvas });
-}
-
-function elementToDataURL(element: HTMLElement): Promise<string> {
-    return elementToCanvas(element)
-        .then(function (canvas: HTMLCanvasElement) {
-            return canvas.toDataURL();
-        });
-}
-
-function asClosedBox(element: HTMLElement): Promise<HTMLElement> {
-    return new Promise((resolve, reject) => {
-        let parent: HTMLElement = element.parentElement!;
-
-        if (!parent) {
-            reject('parentElement not found');
-            return;
-        }
-
-        let existsPosition: boolean = !!parent.style.position;
-        let position: string = getComputedStyle(parent).position;
-
-        if (position === 'static') {
-            parent.style.position = 'relative';
-        }
-
-        try {
-            resolve(element);
-        } catch (error) {
-            reject(error);
-        } finally {
-            if (existsPosition) {
-                parent.style.position = position;
-            } else {
-                parent.style.position = '';
-            }
-        }
-    });
-}
-
-function getPosition(element: HTMLElement): IPosition {
-    let rect: DOMRect = element.getBoundingClientRect();
-    let rectParent: DOMRect = element.parentElement?.getBoundingClientRect() || rect;
-
-    return {
-        top: rect.top - rectParent.top,
-        left: rect.left - rectParent.left,
-        width: rect.width,
-        height: rect.height
-    }
-}
+import { asClosedBox, getElement, getGridSize, getPosition } from './annihilation.helper';
+import { IAnnihilationEnd, IAnnihilationOptions, ICellParams } from './annihilation.models';
+import { elementToCanvas, elementToDataURL } from './annihilation.converters';
 
 function getOptions(options: IAnnihilationOptions): IAnnihilationOptions {
     return Object.assign({
@@ -200,7 +75,7 @@ export function annihilation(options: IAnnihilationOptions): Promise<IAnnihilati
 
                                 if (!cellCount) {
                                     annihilationElement.remove();
-                                    
+
                                     element.classList.remove('annihilation');
                                     if (opt.removeElement) {
                                         element.remove();
@@ -230,25 +105,27 @@ export function annihilation(options: IAnnihilationOptions): Promise<IAnnihilati
     });
 }
 
-export function annihilationPreview(options: IAnnihilationOptions): Promise<IAnnihilationEnd> {
-    const opt: IAnnihilationOptions = getOptions(options);
-    const element: HTMLElement = getElement(opt.element);
+export { annihilationPreview } from './annihilation.preview';
 
-    return asClosedBox(element)
-        .then(elementToCanvas)
-        .then(function (canvas: HTMLCanvasElement) {
-            let { top, left, width, height } = getPosition(element);
+// export function annihilationPreview(options: IAnnihilationOptions): Promise<IAnnihilationEnd> {
+//     const opt: IAnnihilationOptions = getOptions(options);
+//     const element: HTMLElement = getElement(opt.element);
 
-            element.classList.add('annihilation');
+//     return asClosedBox(element)
+//         .then(elementToCanvas)
+//         .then(function (canvas: HTMLCanvasElement) {
+//             let { top, left, width, height } = getPosition(element);
 
-            canvas.classList.add('annihilation__content');
-            canvas.style.top = `${top}px`;
-            canvas.style.left = `${left}px`;
-            canvas.style.width = `${width}px`;
-            canvas.style.height = `${height}px`;
+//             element.classList.add('annihilation');
 
-            element.parentElement?.appendChild(canvas);
+//             canvas.classList.add('annihilation__content');
+//             canvas.style.top = `${top}px`;
+//             canvas.style.left = `${left}px`;
+//             canvas.style.width = `${width}px`;
+//             canvas.style.height = `${height}px`;
 
-            return { element };
-        });
-}
+//             element.parentElement?.appendChild(canvas);
+
+//             return { element };
+//         });
+// }

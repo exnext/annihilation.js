@@ -72,6 +72,7 @@
     "last 3 iOS versions"
   ],
   "dependencies": {
+    "@exnext/eventex": "^1.0.2",
     "html2canvas": "^1.4.1"
   }
 }
