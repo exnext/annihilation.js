@@ -1,6 +1,6 @@
 import { elementToCanvas } from "./annihilation.converters";
-import { asClosedBox, getElement, getPosition } from "./annihilation.helper";
-import { IAfterAnnihilation, IAnnihilationOptions, IBeforeAnnihilation, IPosition } from "./annihilation.models";
+import { asClosedBox, getElement, getGridSize, getPosition } from "./annihilation.helper";
+import { IAfterAnnihilation, IAnnihilationOptions, IBeforeAnnihilation, ICellParams, IPosition } from "./annihilation.models";
 
 import { Eventex } from '@exnext/eventex';
 
@@ -24,9 +24,63 @@ export abstract class AnnihilationBase extends Eventex {
     protected abstract renderTo(canvas: HTMLCanvasElement): HTMLElement | Promise<HTMLElement>;
 
     protected getRenderedElement(canvas: HTMLCanvasElement): Promise<HTMLElement> {
-        return new Promise((resolve) => {
+        return new Promise<HTMLElement>((resolve) => {
             resolve(this.renderTo(canvas));
-        });
+        })
+            .then((annihilationElement: HTMLElement) => {
+                let { columns, rows } = getGridSize(this.element, this.options.columns, this.options.rows);
+
+                annihilationElement.style.setProperty('--columns', columns.toString());
+                annihilationElement.style.setProperty('--rows', rows.toString());
+
+                let cellCount: number = columns * rows;
+
+                for (let row: number = 0; row < rows; row++) {
+                    for (let column: number = 0; column < columns; column++) {
+                        let cell: HTMLElement = document.createElement('div');
+
+                        cell.style.setProperty('--column', column.toString());
+                        cell.style.setProperty('--row', row.toString());
+                        cell.style.animationDelay = 0.5 * Math.random() + 's';
+
+                        if (this.options.animationCssClass) {
+                            this.options.animationCssClass.split(/\s+/g)
+                                .forEach(function name(params: string) {
+                                    cell.classList.add(params);
+                                });
+                        } else {
+                            cell.classList.add('annihilation_animate');
+                        }
+
+                        let cellParams: ICellParams = {
+                            columns,
+                            rows,
+                            column,
+                            row,
+                            element: this.element,
+                            cell
+                        }
+
+                        this.emit<ICellParams>('created-cell', cellParams);
+
+                        cell.addEventListener('animationend', () => {
+                            cellCount--;
+
+                            this.emit('cell-animation-end', { cellCount, cellParams });
+
+                            if (!cellCount) {
+                                annihilationElement.remove();
+
+                                this.onEnd();
+                            }
+                        });
+
+                        annihilationElement.appendChild(cell);
+                    }
+                }
+
+                return annihilationElement;
+            })
     }
 
     get PositionElement(): IPosition {

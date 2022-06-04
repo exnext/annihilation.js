@@ -4,9 +4,6 @@ export interface IAnnihilationOptions {
     columns?: number;
     rows?: number;
     animationCssClass?: string;
-    onCreatedCell?: OnCreatedCell;
-    onCellAnimationEnd?: OnCellAnimationEnd;
-    onBeforeAnnihilation?: OnBeforeAnnihilation;
 }
 
 export interface ICellParams {
@@ -18,8 +15,6 @@ export interface ICellParams {
     cell: HTMLElement
 }
 
-export type OnCreatedCell = (params: ICellParams) => void;
-
 export interface IBeforeAnnihilation {
     element: HTMLElement;
     annihilationElement: HTMLElement;
@@ -28,11 +23,6 @@ export interface IBeforeAnnihilation {
 export interface IAfterAnnihilation {
     element: HTMLElement;
 }
-
-export type OnBeforeAnnihilation = (params: IBeforeAnnihilation) => void;
-
-export type OnCellAnimationEnd = (count: number, params: ICellParams) => void;
-
 
 export interface IGridSize {
     columns: number;

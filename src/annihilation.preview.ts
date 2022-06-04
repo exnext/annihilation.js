@@ -6,6 +6,7 @@ class AnnihilationPreview extends AnnihilationBase {
         let { top, left, width, height } = this.PositionElement;
 
         canvas.classList.add('annihilation__content');
+        
         canvas.style.top = `${top}px`;
         canvas.style.left = `${left}px`;
         canvas.style.width = `${width}px`;
@@ -16,5 +17,14 @@ class AnnihilationPreview extends AnnihilationBase {
 }
 
 export function annihilationPreview(options: IAnnihilationOptions): AnnihilationPreview {
-    return new AnnihilationPreview(options);
+    let opt = {
+        ...options,
+        
+        removeElement: false,
+        columns: 0,
+        rows: 0,
+        animationCssClass: undefined
+    }
+
+    return new AnnihilationPreview(opt);
 }
