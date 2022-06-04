@@ -254,7 +254,7 @@
             })
               .on('created-cell', (params) => {
                 let multiplier = Math.abs(params.row - rowClick) + Math.abs(params.column - colClick);
-                params.piece.style.animationDelay = 0.05 * multiplier + 's';
+                params.cell.style.animationDelay = 0.05 * multiplier + 's';
               })
               .doIt();
           });
@@ -318,9 +318,9 @@
               animationCssClass: 'animate__animated ' + direction
             })
               .on('created-cell', (params) => {
-                params.piece.style.animationDelay = 0.5 * Math.random() + 's';
+                params.cell.style.animationDelay = 0.5 * Math.random() + 's';
               })
-              .on('annihilation-end', ({ element }) => {
+              .on('after-annihilation', ({ element }) => {
                 if (element.classList.contains('carousel-item-end')) {
                   element.classList.add('hide-item');
                 }
@@ -383,7 +383,7 @@
                   rowClick = Math.floor(params.rows * (event.clientY - rect.top) / rect.height);
 
                 let multiplier = Math.abs(params.row - rowClick) + Math.abs(params.column - colClick);
-                params.piece.style.animationDelay = 0.01 * multiplier + 's';
+                params.cell.style.animationDelay = 0.01 * multiplier + 's';
               })
               .doIt();
           });
@@ -473,7 +473,7 @@
               ...options
             })
               .on('created-cell', onCreatedCell)
-              .on('annihilation-end', ({ element }) => {
+              .on('after-annihilation', ({ element }) => {
                 element.style.display = 'none';
                 exampleModal.hide();
               })
@@ -507,8 +507,8 @@
 
                   onCreatedCell = (params) => {
                     let animation = params.row % 2 ? 'animate__fadeOutLeft' : 'animate__fadeOutRight';
-                    params.piece.classList.add(animation);
-                    params.piece.style.animationDelay = 0.01 * params.row + 's';
+                    params.cell.classList.add(animation);
+                    params.cell.style.animationDelay = 0.01 * params.row + 's';
                   }
 
                   break;
@@ -520,8 +520,8 @@
 
                   onCreatedCell = (params) => {
                     let x = -100 * ((params.columns / 2) - params.column), y = -100 * ((params.rows / 2) - params.row);
-                    params.piece.style.setProperty('--x', x + '%');
-                    params.piece.style.setProperty('--y', y + '%');
+                    params.cell.style.setProperty('--x', x + '%');
+                    params.cell.style.setProperty('--y', y + '%');
                   }
 
                   break;

@@ -1,6 +1,6 @@
 import { elementToCanvas } from "./annihilation.converters";
 import { asClosedBox, getElement, getPosition } from "./annihilation.helper";
-import { IAnnihilationOptions, IPosition } from "./annihilation.models";
+import { IAfterAnnihilation, IAnnihilationOptions, IBeforeAnnihilation, IPosition } from "./annihilation.models";
 
 import { Eventex } from '@exnext/eventex';
 
@@ -34,11 +34,15 @@ export abstract class AnnihilationBase extends Eventex {
     }
 
     protected onEnd(): void {
-        this.element.classList.remove('annihilation');
+        this.emit<IAfterAnnihilation>('after-annihilation', {
+            element: this.element
+        }).then(() => {
+            this.element.classList.remove('annihilation');
 
-        if (this.options.removeElement) {
-            this.element.remove();
-        }
+            if (this.options.removeElement) {
+                this.element.remove();
+            }
+        });
     }
 
     doIt(): void {
@@ -48,13 +52,13 @@ export abstract class AnnihilationBase extends Eventex {
             .then((annihilationElement: HTMLElement) => {
                 this.element.classList.add('annihilation');
 
-                return this.emit('before-annihilation', { annihilationElement })
+                return this.emit<IBeforeAnnihilation>('before-annihilation', {
+                    annihilationElement,
+                    element: this.element
+                })
                     .then(() => {
                         this.element.parentElement?.appendChild(annihilationElement);
                     });
-            })
-            .finally(() => {
-                this.emit('after-annihilation', { element: this.element });
             });
     }
 }
