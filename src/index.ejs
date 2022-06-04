@@ -40,7 +40,7 @@
           sectionTemplates[template.id] = template;
         });
 
-      const sections = document.querySelectorAll('section.demo');
+      const sections = document.querySelectorAll('section.demo:not(.disabled)');
 
       for (let section of sections) {
         let template = section.querySelector('template');
@@ -74,6 +74,10 @@
       padding: 20px;
       background-color: #fff4;
       border-radius: 10px;
+    }
+
+    section.disabled {
+      display: none;
     }
 
     section a {
@@ -217,7 +221,8 @@
           .addEventListener('click', function (event) {
             annihilation({
               element: '#img_demo_1'
-            });
+            })
+              .doIt();
           });
       </script>
     </template>
@@ -245,12 +250,13 @@
               element: event.currentTarget,
               columns,
               rows,
-              animationCssClass: 'animate__animated animate__zoomOut',
-              onCreatedCell: (params) => {
+              animationCssClass: 'animate__animated animate__zoomOut'
+            })
+              .on('created-cell', (params) => {
                 let multiplier = Math.abs(params.row - rowClick) + Math.abs(params.column - colClick);
                 params.piece.style.animationDelay = 0.05 * multiplier + 's';
-              }
-            });
+              })
+              .doIt();
           });
       </script>
     </template>
@@ -309,15 +315,17 @@
               removeElement: false,
               rows: 10,
               columns: 1,
-              animationCssClass: 'animate__animated ' + direction,
-              onCreatedCell: (params) => {
+              animationCssClass: 'animate__animated ' + direction
+            })
+              .on('created-cell', (params) => {
                 params.piece.style.animationDelay = 0.5 * Math.random() + 's';
-              }
-            }).then(({ element }) => {
-              if (element.classList.contains('carousel-item-end')) {
-                element.classList.add('hide-item');
-              }
-            });
+              })
+              .on('annihilation-end', ({ element }) => {
+                if (element.classList.contains('carousel-item-end')) {
+                  element.classList.add('hide-item');
+                }
+              })
+              .doIt();
           });
 
         document.getElementById('carouselExampleControls_1')
@@ -367,16 +375,17 @@
             annihilation({
               element: '#form_demo_1',
               columns: 20,
-              animationCssClass: 'animate__animated animate__zoomOut',
-              onCreatedCell: (params) => {
+              animationCssClass: 'animate__animated animate__zoomOut'
+            })
+              .on('created-cell', (params) => {
                 let rect = params.element.getBoundingClientRect(),
                   colClick = Math.floor(params.columns * (event.clientX - rect.left) / rect.width),
                   rowClick = Math.floor(params.rows * (event.clientY - rect.top) / rect.height);
 
                 let multiplier = Math.abs(params.row - rowClick) + Math.abs(params.column - colClick);
                 params.piece.style.animationDelay = 0.01 * multiplier + 's';
-              }
-            });
+              })
+              .doIt();
           });
       </script>
     </template>
@@ -454,7 +463,7 @@
           keyboard: false
         });
 
-        var options = {};
+        var options = {}, onCreatedCell = () => undefined;
 
         document.querySelector('#exampleModal .btn-primary')
           .addEventListener('click', function (event) {
@@ -463,10 +472,12 @@
               removeElement: false,
               ...options
             })
-              .then(function ({ element }) {
+              .on('created-cell', onCreatedCell)
+              .on('annihilation-end', ({ element }) => {
                 element.style.display = 'none';
                 exampleModal.hide();
-              });
+              })
+              .doIt();
           });
 
         document.getElementById('exampleModal')
@@ -482,34 +493,44 @@
                   options = {
                     animationCssClass: 'animate__animated animate__zoomOut'
                   };
+
+                  onCreatedCell = () => undefined;
+
                   break;
 
                 case 'Rows':
                   options = {
                     columns: 1,
                     rows: 10,
-                    animationCssClass: 'animate__animated',
-                    onCreatedCell: (params) => {
-                      let animation = params.row % 2 ? 'animate__fadeOutLeft' : 'animate__fadeOutRight';
-                      params.piece.classList.add(animation);
-                      params.piece.style.animationDelay = 0.01 * params.row + 's';
-                    }
+                    animationCssClass: 'animate__animated'
                   };
+
+                  onCreatedCell = (params) => {
+                    let animation = params.row % 2 ? 'animate__fadeOutLeft' : 'animate__fadeOutRight';
+                    params.piece.classList.add(animation);
+                    params.piece.style.animationDelay = 0.01 * params.row + 's';
+                  }
+
                   break;
 
                 case 'Explosion':
                   options = {
-                    animationCssClass: 'explosion_animate',
-                    onCreatedCell: (params) => {
-                      let x = -100 * ((params.columns / 2) - params.column), y = -100 * ((params.rows / 2) - params.row);
-                      params.piece.style.setProperty('--x', x + '%');
-                      params.piece.style.setProperty('--y', y + '%');
-                    }
+                    animationCssClass: 'explosion_animate'
                   };
+
+                  onCreatedCell = (params) => {
+                    let x = -100 * ((params.columns / 2) - params.column), y = -100 * ((params.rows / 2) - params.row);
+                    params.piece.style.setProperty('--x', x + '%');
+                    params.piece.style.setProperty('--y', y + '%');
+                  }
+
                   break;
 
                 default:
                   options = {};
+
+                  onCreatedCell = () => undefined;
+
                   break;
               }
             });

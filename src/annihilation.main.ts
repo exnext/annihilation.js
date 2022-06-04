@@ -68,6 +68,14 @@ class Annihilation extends AnnihilationBase {
 
         return annihilationElement;
     }
+
+    protected onEnd(): void {
+        this.emit('annihilation-end', {
+            element: this.element
+        });
+
+        return super.onEnd();
+    }
 }
 
 export function annihilation(options: IAnnihilationOptions): Annihilation {
