@@ -539,6 +539,27 @@
     </template>
   </section>
 
+  <section class="demo img-demo">
+    <h3>Example usage 6</h3>
+    <small>preview rendered content to annihilation</small>
+
+    <template>
+      <div id="img_demo_6">
+        <img src="assets/first.jpg" />
+      </div>
+
+      <script>
+        document.getElementById('img_demo_6')
+          .addEventListener('click', function (event) {
+            annihilationPreview({
+              element: '#img_demo_6',
+            })
+              .doIt();
+          });
+      </script>
+    </template>
+  </section>
+
   <script src="//cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
