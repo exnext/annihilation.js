@@ -1,6 +1,6 @@
 import { elementToCanvas } from "./annihilation.converters";
 import { asClosedBox, getElement, getGridSize, getPosition } from "./annihilation.helper";
-import { IAfterAnnihilation, IAnnihilationOptions, IBeforeAnnihilation, ICellParams, IGridSize, IPosition } from "./annihilation.models";
+import { IAfterAnnihilation, IAnnihilationOptions, IBeforeAnnihilation, ICellAnimationEnd, ICellParams, IGridSize, IPosition } from "./annihilation.models";
 
 import { Eventex } from '@exnext/eventex';
 
@@ -37,7 +37,7 @@ export abstract class AnnihilationBase extends Eventex {
         annihilationElement.style.setProperty('--columns', columns.toString());
         annihilationElement.style.setProperty('--rows', rows.toString());
 
-        let cellCount: number = columns * rows;
+        let cellsLeft: number = columns * rows;
 
         for (let row: number = 0; row < rows; row++) {
             for (let column: number = 0; column < columns; column++) {
@@ -68,11 +68,11 @@ export abstract class AnnihilationBase extends Eventex {
                 this.emit<ICellParams>('created-cell', cellParams);
 
                 cell.addEventListener('animationend', () => {
-                    cellCount--;
+                    cellsLeft--;
 
-                    this.emit('cell-animation-end', { cellCount, cellParams });
+                    this.emit<ICellAnimationEnd>('cell-animation-end', { cellsLeft, cellParams });
 
-                    if (!cellCount) {
+                    if (!cellsLeft) {
                         annihilationElement.remove();
 
                         this.onEnd();
